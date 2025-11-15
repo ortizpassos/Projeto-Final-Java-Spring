@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: monitor-ellas-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: production-monitor
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - monitor-ellas-network
+
+  backend:
+    build: .
+    container_name: monitor-ellas-backend
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      MONGO_URI: mongodb://mongodb:27017/production-monitor
+      JWT_SECRET: ${JWT_SECRET:-segredo_super_secreto}
+    depends_on:
+      - mongodb
+    networks:
+      - monitor-ellas-network
+
+volumes:
+  mongodb_data:
+    driver: local
+
+networks:
+  monitor-ellas-network:
+    driver: bridge
