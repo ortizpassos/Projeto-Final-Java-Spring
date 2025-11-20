@@ -1,12 +1,36 @@
-version: '3.8'
-
 services:
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: monitor-ellas-rabbitmq
+    restart: unless-stopped
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ortizpassos
+      RABBITMQ_DEFAULT_PASS: 180523
+    networks:
+      - monitor-ellas-network
+
+  postgres:
+    image: postgres:16
+    container_name: monitor-ellas-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: emails
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - monitor-ellas-network
   mongodb:
     image: mongo:7.0
     container_name: monitor-ellas-mongodb
     restart: unless-stopped
     ports:
-      - "27017:27017"
+      - "27018:27017"
     environment:
       MONGO_INITDB_DATABASE: production-monitor
     volumes:
@@ -16,20 +40,67 @@ services:
 
   backend:
     build: .
-    container_name: monitor-ellas-backend
+    container_name: backend
     restart: unless-stopped
     ports:
       - "3001:3001"
     environment:
       MONGO_URI: mongodb://mongodb:27017/production-monitor
       JWT_SECRET: ${JWT_SECRET:-segredo_super_secreto}
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: ortizpassos
+      RABBITMQ_PASS: 180523
     depends_on:
       - mongodb
+      - rabbitmq
+    networks:
+      - monitor-ellas-network
+
+  frontend:
+    build:
+      context: ../frontend
+    container_name: frontend
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    networks:
+      - monitor-ellas-network
+
+  email-service:
+    build:
+      context: ../email-service
+    container_name: email-service
+    restart: unless-stopped
+    ports:
+      - "3002:3002"
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: ortizpassos
+      RABBITMQ_PASS: 180523
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: emails
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_USERNAME: ${SMTP_USERNAME}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      MAIL_FROM: ${MAIL_FROM}
+    depends_on:
+      - rabbitmq
+      - postgres
     networks:
       - monitor-ellas-network
 
 volumes:
   mongodb_data:
+    driver: local
+  postgres_data:
     driver: local
 
 networks:

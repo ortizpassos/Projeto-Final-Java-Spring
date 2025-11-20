@@ -2,6 +2,7 @@ package com.monitorellas.service;
 
 import com.monitorellas.model.Operacao;
 import com.monitorellas.model.Usuario;
+import com.monitorellas.mq.EventPublisher;
 import com.monitorellas.repository.OperacaoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,9 +15,18 @@ public class OperacaoService {
     @Autowired
     private OperacaoRepository operacaoRepository;
 
+    @Autowired
+    private EventPublisher eventPublisher;
+
     public Operacao criar(Operacao operacao, Usuario usuario) {
         operacao.setUsuario(usuario);
-        return operacaoRepository.save(operacao);
+        Operacao saved = operacaoRepository.save(operacao);
+        try {
+            eventPublisher.publishOperacaoCreated(saved, usuario);
+        } catch (Exception ex) {
+            // não falhar a requisição por causa da mensageria
+        }
+        return saved;
     }
 
     public List<Operacao> listarPorUsuario(Usuario usuario) {
