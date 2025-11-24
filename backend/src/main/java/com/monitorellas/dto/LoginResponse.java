@@ -40,5 +40,9 @@ public class LoginResponse {
     @AllArgsConstructor
     public static class ErrorWrapper {
         private String message;
+        // Indica que o login falhou porque exige verificação de e-mail pendente
+        private Boolean needsVerification;
+        // Email relacionado (para redirecionar automaticamente)
+        private String email;
     }
 }

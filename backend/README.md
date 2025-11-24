@@ -187,3 +187,31 @@ O sistema utiliza SLF4J com Logback para logging:
 ## Licença
 
 Este projeto é uma conversão do backend original Monitor-Ellas.
+
+## Verificação de E-mail (Nova Funcionalidade)
+
+Fluxo:
+1. `POST /api/auth/cadastro` cria usuário não verificado e envia código de 6 dígitos por e-mail.
+2. Frontend redireciona para tela de verificação solicitando `email` e `codigo`.
+3. `POST /api/auth/verificar` com `{ email, codigo }` confirma o e-mail se código válido e não expirado.
+4. Antes de verificar, tentativa de login retorna 403 com `error.needsVerification = true`.
+5. `POST /api/auth/reenviar` gera novo código (invalida anterior) e envia por e-mail.
+
+Propriedades:
+- `verif.code.exp.minutes` (default 30)
+- `verif.code.attempt.limit` (default 5)
+
+RabbitMQ:
+- Routing key `email.verificacao` publicada com payload `{ type: 'email.verificacao', usuarioEmail, codigo, expiresAt }`.
+
+Campos adicionados em `Usuario`:
+- `emailVerificado` (Boolean)
+- `verifCodigoHash` (BCrypt do código ativo)
+- `verifExpiresAt` (expiração do código)
+- `verifTentativas` (contador de tentativas)
+
+Erros possíveis:
+- Código expirado / inválido / limite de tentativas.
+
+Status HTTP:
+- Login bloqueado por verificação pendente: 403.

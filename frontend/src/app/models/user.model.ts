@@ -1,14 +1,15 @@
 export interface User {
   id: string;
   email: string;
-  firstName: string;
-  lastName: string;
+  nome?: string; // nome completo recebido do backend
+  firstName?: string;
+  lastName?: string;
   phone?: string;
   document?: string;
-  createdAt: Date;
-  updatedAt: Date;
-  isEmailVerified: boolean;
-  isActive: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+  isEmailVerified?: boolean; // mapeado de emailVerificado do backend
+  isActive?: boolean;
 }
 
 export interface UserRegistration {
@@ -30,11 +31,13 @@ export interface AuthResponse {
   data?: {
     user: User;
     token: string;
-    refreshToken: string;
+    refreshToken?: string; // manter opcional para compatibilidade
     expiresIn: number;
   };
   error?: {
     message: string;
+    needsVerification?: boolean;
+    email?: string;
     code?: string;
   };
 }

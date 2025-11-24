@@ -1,4 +1,3 @@
-
 package com.monitorellas.mq;
 
 import com.monitorellas.mail.MailService;
@@ -23,12 +22,38 @@ public class EmailListener {
 
     @RabbitListener(queues = "${app.mq.queue}")
     public void onOperacaoCreated(@Payload Map<String, Object> payload) {
+        String type = (String) payload.get("type");
+        if (type == null) return;
+        switch (type) {
+            case "operacao.created" -> handleOperacaoCreated(payload);
+            case "email.verificacao" -> handleEmailVerificacao(payload);
+            default -> {
+            }
+        }
+    }
+
+    private void handleOperacaoCreated(Map<String, Object> payload) {
         String to = (String) payload.get("usuarioEmail");
         if (to == null || to.isBlank()) return;
         String operacaoNome = (String) payload.getOrDefault("operacaoNome", "Operação");
         String subject = "[" + appName + "] Operação criada";
         String body = "Sua operação '" + operacaoNome + "' foi criada com sucesso.\n\n" +
                 "Detalhes: " + payload + "\n";
+        mailService.send(to, subject, body);
+    }
+
+    private void handleEmailVerificacao(Map<String, Object> payload) {
+        String to = (String) payload.get("usuarioEmail");
+        if (to == null || to.isBlank()) return;
+        String codigo = (String) payload.get("codigo");
+        String expiresAt = (String) payload.get("expiresAt");
+        String subject = "[" + appName + "] Verificação de e-mail";
+        String body = "Olá,\n\n" +
+                "Recebemos seu cadastro. Para ativar sua conta, utilize o código abaixo:\n\n" +
+                "Código: " + codigo + "\n\n" +
+                "Este código expira em: " + expiresAt + " (30 minutos).\n" +
+                "Se você não solicitou este cadastro, ignore este e-mail.\n\n" +
+                "Equipe " + appName + "\n";
         mailService.send(to, subject, body);
     }
 }

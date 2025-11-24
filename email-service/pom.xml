@@ -85,6 +85,13 @@
                 <configuration>
                     <mainClass>com.monitorellas.EmailServiceApplication</mainClass>
                 </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
 
             <!-- Garantir compilação usando Java 17 -->

@@ -1,0 +1,25 @@
+<div class="verificacao-container">
+  <h2>Verificação de E-mail</h2>
+  <p>Enviamos um código para: <strong>{{ email }}</strong></p>
+  <p>Tempo restante: <span class="tempo">{{ formatarTempo() }}</span></p>
+
+  <form (ngSubmit)="onSubmit()" class="verificacao-form">
+    <label for="codigo">Código de verificação</label>
+    <input id="codigo" type="text" maxlength="6" [(ngModel)]="codigo" name="codigo" placeholder="Ex: 123456" />
+    @if (erro) {
+      <div class="erro">{{ erro }}</div>
+    }
+    @if (sucesso) {
+      <div class="sucesso">{{ sucesso }}</div>
+    }
+    <button type="submit" [disabled]="carregando">{{ carregando ? 'Verificando...' : 'Verificar' }}</button>
+  </form>
+
+  <div class="acoes">
+    <button type="button" (click)="reenviarCodigo()" [disabled]="!podeReenviar()">
+      {{ restanteBloqueio > 0 ? 'Aguarde ' + restanteBloqueio + 's' : 'Não recebi o código, reenviar' }}
+    </button>
+    <button type="button" (click)="voltarLogin()">Voltar para login</button>
+  </div>
+</div>
+

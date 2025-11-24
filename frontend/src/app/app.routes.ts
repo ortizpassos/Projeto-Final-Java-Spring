@@ -14,6 +14,10 @@ export const routes: Routes = [
 		path: 'cadastro',
 		loadChildren: () => import('./cadastro/cadastro-module').then(m => m.CadastroModule)
 	},
+    {
+        path: 'verificar',
+        loadComponent: () => import('./verificacao/verificacao').then(m => m.VerificacaoEmailComponent)
+    },
 	{
 		path: 'funcionarios',
 		canActivate: [authGuard],
@@ -27,7 +31,7 @@ export const routes: Routes = [
 	{
 		path: 'dashboard',
 		canActivate: [authGuard],
-		loadChildren: () => import('./dashboard/dashboard-module').then(m => m.DashboardModule)    
+		loadChildren: () => import('./dashboard/dashboard-module').then(m => m.DashboardModule)
 	},
 	{
 		path: 'producao',

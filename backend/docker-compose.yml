@@ -46,7 +46,7 @@ services:
       - "3001:3001"
     environment:
       MONGO_URI: mongodb://mongodb:27017/production-monitor
-      JWT_SECRET: ${JWT_SECRET:-segredo_super_secreto}
+      JWT_SECRET: ${JWT_SECRET:-K8d!2pLz9qW4sX7vB1eR5tY8uH3jM6nP}
       RABBITMQ_HOST: rabbitmq
       RABBITMQ_PORT: 5672
       RABBITMQ_USER: ortizpassos

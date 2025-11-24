@@ -19,7 +19,11 @@ public class JwtTokenProvider {
     private long jwtExpiration;
 
     private SecretKey getSigningKey() {
-        return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+        byte[] keyBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);
+        if (keyBytes.length < 32) {
+            System.out.println("WARNING: JWT Secret is too short! Length: " + keyBytes.length + " bytes. It must be at least 32 bytes for HS256.");
+        }
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 
     public String generateToken(String userId, String email) {
