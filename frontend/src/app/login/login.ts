@@ -69,17 +69,32 @@ export class LoginComponent implements OnChanges {
       senha: this.dadosLogin.password
     };
     this.authService.login(payload).subscribe({
-      next: (response) => {
+      next: (response: any) => {
         if (response.success) {
           this.loginSuccess.emit();
           this.router.navigate(['/dashboard']);
         } else {
-          this.erroGeral = response.error?.message || 'Erro ao fazer login';
+          // Redirecionar para tela de verificação se email não verificado
+          if (response.error?.needsVerification && response.error.email) {
+            this.router.navigate(['/verificar'], { queryParams: { email: response.error.email } });
+          } else {
+            this.erroGeral = response.error?.message || 'Erro ao fazer login';
+          }
         }
         this.carregando = false;
       },
-      error: (err) => {
-        this.erroGeral = err.error?.message || 'Erro ao autenticar';
+      error: (err: any) => {
+        // Se backend responder 403 (Forbidden) com needsVerification, redirecionar para verificação
+        if (err.status === 403) {
+          const errorData = err.error?.error || err.error;
+          if (errorData?.needsVerification && errorData?.email) {
+            this.router.navigate(['/verificar'], { queryParams: { email: errorData.email } });
+            this.carregando = false;
+            return;
+          }
+        }
+        // Outros erros
+        this.erroGeral = err.error?.message || err.error?.error?.message || 'Erro ao autenticar';
         this.carregando = false;
       }
     });

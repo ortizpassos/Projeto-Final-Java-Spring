@@ -42,21 +42,40 @@ public class WebSocketController {
     public void registerDevice(@Payload DeviceEventDto data) {
         logger.info("Dispositivo registrado: {}", data.getDeviceToken());
         
-        dispositivoRepository.findByDeviceToken(data.getDeviceToken()).ifPresent(dispositivo -> {
+        var dispositivoOpt = dispositivoRepository.findByDeviceToken(data.getDeviceToken());
+        
+        if (dispositivoOpt.isPresent()) {
+            Dispositivo dispositivo = dispositivoOpt.get();
             dispositivo.setStatus("online");
             dispositivo.setUltimaAtualizacao(LocalDateTime.now());
             dispositivoRepository.save(dispositivo);
             
             // Emitir atualização para todos os clientes
             messagingTemplate.convertAndSend("/topic/deviceStatusUpdate", dispositivo);
-        });
-        
-        WebSocketMessage response = WebSocketMessage.builder()
-                .success(true)
-                .message("Dispositivo registrado com sucesso!")
-                .build();
-        
-        messagingTemplate.convertAndSend("/topic/deviceRegistered", response);
+
+            boolean usuarioVinculado = dispositivo.getUsuario() != null;
+
+            WebSocketMessage response = WebSocketMessage.builder()
+                    .type("deviceRegistered")
+                    .success(true)
+                    .message("Dispositivo conectado.")
+                    .data(Map.of(
+                        "deviceToken", data.getDeviceToken(),
+                        "usuarioVinculado", usuarioVinculado
+                    ))
+                    .build();
+            messagingTemplate.convertAndSend("/topic/deviceRegistered", response);
+        } else {
+            // Opcional: Criar dispositivo novo se não existir? 
+            // Por enquanto, mantemos comportamento de rejeitar se não estiver no banco.
+            WebSocketMessage response = WebSocketMessage.builder()
+                    .type("deviceRegistered")
+                    .success(false)
+                    .message("Dispositivo não encontrado no sistema.")
+                    .data(Map.of("deviceToken", data.getDeviceToken()))
+                    .build();
+            messagingTemplate.convertAndSend("/topic/deviceRegistered", response);
+        }
     }
 
     @MessageMapping("/loginFuncionario")
@@ -96,8 +115,10 @@ public class WebSocketController {
             Map<String, Object> successData = new HashMap<>();
             successData.put("funcionario", Map.of("nome", funcionario.getNome()));
             successData.put("operacoes", operacoes);
+            successData.put("deviceToken", data.getDeviceToken());
             
             WebSocketMessage success = WebSocketMessage.builder()
+                    .type("loginSuccess")
                     .data(successData)
                     .build();
             
@@ -140,8 +161,10 @@ public class WebSocketController {
                     Map<String, Object> responseData = new HashMap<>();
                     responseData.put("operacao", operacaoData);
                     responseData.put("producaoAtual", dispositivo.getProducaoAtual());
+                    responseData.put("deviceToken", data.getDeviceToken());
                     
                     WebSocketMessage response = WebSocketMessage.builder()
+                            .type("operacaoSelecionada")
                             .data(responseData)
                             .build();
                     
@@ -149,7 +172,9 @@ public class WebSocketController {
                 });
             } else {
                 WebSocketMessage error = WebSocketMessage.builder()
+                        .type("operacaoSelecionada")
                         .error("Dispositivo ou operação não encontrada")
+                        .data(Map.of("deviceToken", data.getDeviceToken()))
                         .build();
                 messagingTemplate.convertAndSend("/topic/operacaoSelecionada", error);
             }
@@ -212,7 +237,9 @@ public class WebSocketController {
         });
         
         WebSocketMessage response = WebSocketMessage.builder()
+                .type("producaoSuccess")
                 .message("Produção recebida!")
+                .data(Map.of("deviceToken", data.getDeviceToken()))
                 .build();
         messagingTemplate.convertAndSend("/topic/producaoSuccess", response);
     }

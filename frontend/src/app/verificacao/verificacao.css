@@ -1,0 +1,13 @@
+.verificacao-container { max-width:420px; margin:40px auto; padding:24px; background:#fff; border:1px solid #ddd; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,.08); }
+.verificacao-container h2 { margin-top:0; font-size:1.4rem; }
+.verificacao-form { display:flex; flex-direction:column; gap:12px; margin-top:12px; }
+.verificacao-form input { padding:10px; font-size:1rem; border:1px solid #ccc; border-radius:6px; }
+.verificacao-form button { padding:10px; background:#0066cc; color:#fff; border:none; border-radius:6px; cursor:pointer; }
+.verificacao-form button:disabled { background:#888; cursor:not-allowed; }
+.tempo { font-weight:bold; }
+.erro { color:#c62828; background:#fdecea; padding:8px; border-radius:4px; }
+.sucesso { color:#256029; background:#e8f5e9; padding:8px; border-radius:4px; }
+.acoes { display:flex; flex-direction:column; gap:8px; margin-top:16px; }
+.acoes button { padding:10px; background:#eee; border:1px solid #ccc; border-radius:6px; cursor:pointer; }
+.acoes button:hover { background:#e0e0e0; }
+

@@ -18,26 +18,37 @@ export class AuthService {
     this.loadStoredAuth();
   }
 
-  register(userData: any): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/cadastro`, userData)
-      .pipe(
-        tap(response => {
-          if (response.success && response.data) {
-            this.setAuth(response.data.user, response.data.token);
-          }
-        })
-      );
+  register(userData: any): Observable<any> {
+    // backend agora retorna apenas message; não seta auth até verificação
+    return this.http.post<any>(`${this.apiUrl}/cadastro`, userData);
   }
 
   login(credentials: any): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials)
       .pipe(
-        tap(response => {
+        tap((response: AuthResponse) => {
           if (response.success && response.data) {
-            this.setAuth(response.data.user, response.data.token);
+            // Mapear campo de verificação se vier como emailVerificado/nome
+            const rawUser: any = response.data.user;
+            const mappedUser: User = {
+              id: rawUser.id,
+              email: rawUser.email,
+              nome: rawUser.nome,
+              isEmailVerified: rawUser.emailVerificado ?? rawUser.isEmailVerified
+            };
+            response.data.user = mappedUser;
+            this.setAuth(mappedUser, response.data.token);
           }
         })
       );
+  }
+
+  verifyEmail(email: string, codigo: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/verificar`, { email, codigo });
+  }
+
+  resendCode(email: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/reenviar`, { email });
   }
 
   logout(): void {

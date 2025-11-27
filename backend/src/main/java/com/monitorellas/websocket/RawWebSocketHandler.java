@@ -125,9 +125,35 @@ public class RawWebSocketHandler extends TextWebSocketHandler {
             // Broadcast para clientes STOMP (frontend web)
             messagingTemplate.convertAndSend("/topic/deviceStatusUpdate", dispositivo);
 
-            session.sendMessage(new TextMessage("{\"type\":\"deviceRegistered\",\"success\":true,\"message\":\"Dispositivo registrado com sucesso!\"}"));
-            logger.info("[WS-RAW] Dispositivo {} registrado", deviceToken);
+            boolean usuarioVinculado = dispositivo.getUsuario() != null;
+
+            ObjectNode response = objectMapper.createObjectNode();
+            response.put("type", "deviceRegistered");
+            response.put("success", true);
+            response.put("message", "Dispositivo conectado.");
+            
+            ObjectNode data = objectMapper.createObjectNode();
+            data.put("deviceToken", deviceToken);
+            data.put("usuarioVinculado", usuarioVinculado);
+            response.set("data", data);
+
+            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(response)));
+            logger.info("[WS-RAW] Dispositivo {} registrado. Vinculado: {}", deviceToken, usuarioVinculado);
         } else {
+            // Se não existe, também retorna success=true (para conectar), mas usuarioVinculado=false
+            // Ou podemos criar o dispositivo aqui se quisermos auto-provisionamento.
+            // Por enquanto, vamos manter a lógica de que se não existe no banco, não conecta com sucesso total?
+            // O usuário pediu: "no backend deve permitir o cadastro de qualquer token que sera verificado pelo dispositivo"
+            // Isso sugere que o backend deve aceitar a conexão e dizer "não tenho usuário".
+            
+            // Mas se não existe no banco, não tem como ter usuário.
+            // Vamos retornar success=false se não existir no banco (para o dispositivo saber que precisa ser cadastrado no painel)
+            // OU success=true e usuarioVinculado=false?
+            
+            // Se o dispositivo não existe no banco, ele precisa ser criado no painel web primeiro?
+            // Geralmente sim. O fluxo é: Admin cria dispositivo no painel (gera token) -> Grava no ESP32.
+            
+            // Se o token não existe no banco, é um erro de configuração ou token inválido.
             session.sendMessage(new TextMessage("{\"type\":\"deviceRegistered\",\"success\":false,\"message\":\"Dispositivo não encontrado no sistema\"}"));
             logger.warn("[WS-RAW] Tentativa de registro de dispositivo não cadastrado: {}", deviceToken);
         }
@@ -183,6 +209,7 @@ public class RawWebSocketHandler extends TextWebSocketHandler {
         response.put("type", "loginSuccess");
 
         ObjectNode data = objectMapper.createObjectNode();
+        data.put("deviceToken", deviceToken);
         ObjectNode funcionarioData = objectMapper.createObjectNode();
         funcionarioData.put("nome", funcionario.getNome());
         data.set("funcionario", funcionarioData);
@@ -251,6 +278,7 @@ public class RawWebSocketHandler extends TextWebSocketHandler {
         response.put("type", "operacaoSelecionada");
 
         ObjectNode data = objectMapper.createObjectNode();
+        data.put("deviceToken", deviceToken);
         ObjectNode operacaoData = objectMapper.createObjectNode();
         operacaoData.put("_id", operacao.getId());
         operacaoData.put("nome", operacao.getNome());
@@ -332,6 +360,15 @@ public class RawWebSocketHandler extends TextWebSocketHandler {
             logger.warn("[WS-RAW] Dispositivo sem usuário ao tentar enviar produção!");
         }
 
-        session.sendMessage(new TextMessage("{\"type\":\"producaoSuccess\",\"message\":\"Produção registrada com sucesso!\"}"));
+        // Resposta de sucesso incluindo deviceToken e dados de produção para o dispositivo validar
+        ObjectNode success = objectMapper.createObjectNode();
+        success.put("type", "producaoSuccess");
+        success.put("message", "Produção registrada com sucesso!");
+        ObjectNode data = objectMapper.createObjectNode();
+        data.put("deviceToken", deviceToken);
+        data.put("quantidade", quantidade);
+        data.put("tempoProducao", tempoProducao);
+        success.set("data", data);
+        session.sendMessage(new TextMessage(objectMapper.writeValueAsString(success)));
     }
 }

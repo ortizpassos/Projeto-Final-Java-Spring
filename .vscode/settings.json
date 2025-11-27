@@ -1,3 +1,4 @@
 {
-    "cmake.sourceDirectory": "C:/Devs2Blu/Aulas_Ranyer/Projeto-Final-Java-Spring/ESP32_STOMP/lvgl"
+    "cmake.sourceDirectory": "C:/Devs2Blu/Aulas_Ranyer/Projeto-Final-Java-Spring/ESP32_STOMP/lvgl",
+    "java.configuration.updateBuildConfiguration": "interactive"
 }

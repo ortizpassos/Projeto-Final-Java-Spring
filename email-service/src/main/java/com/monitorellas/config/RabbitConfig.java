@@ -15,7 +15,7 @@ public class RabbitConfig {
         return new Queue("email.outbox", true);
     }
 
-    // Permitir apenas java.util.HashMap para deserialização segura
+
     @Bean
     public MessageConverter messageConverter() {
         Jackson2JsonMessageConverter converter = new Jackson2JsonMessageConverter();

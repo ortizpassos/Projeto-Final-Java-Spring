@@ -14,7 +14,6 @@ import { UserRegistration } from '../models/user.model';
 })
 export class CadastroComponent {
   @Output() switchToLogin = new EventEmitter<void>();
-  @Output() registerSuccess = new EventEmitter<void>();
 
   dadosCadastro: UserRegistration = {
     email: '',
@@ -63,7 +62,9 @@ export class CadastroComponent {
   }
 
   onSubmit(): void {
+    console.log('onSubmit called');
     if (!this.validarFormulario()) {
+      console.log('Form invalid');
       return;
     }
     this.carregando = true;
@@ -74,19 +75,18 @@ export class CadastroComponent {
       email: this.dadosCadastro.email,
       senha: this.dadosCadastro.password
     };
+    console.log('Calling authService.register');
     this.authService.register(payload).subscribe({
-      next: (response) => {
-        // Sucesso: backend retorna 201 ou objeto sem error
-        this.sucessoMsg = 'Cadastro efetuado com sucesso!';
+      next: () => {
+        console.log('Register success, navigating to /verificar');
         this.erroGeral = '';
         this.carregando = false;
-        setTimeout(() => {
-          this.registerSuccess.emit();
-          this.router.navigate(['/login']);
-        }, 1500);
+        this.router.navigate(['/verificar'], { queryParams: { email: this.dadosCadastro.email } })
+          .then(success => console.log('Navigation result:', success))
+          .catch(err => console.error('Navigation error:', err));
       },
-      error: (err) => {
-        // Erro: backend retorna error
+      error: (err: any) => {
+        console.error('Register error:', err);
         this.sucessoMsg = '';
         this.erroGeral = err.error?.message || 'Erro ao cadastrar';
         this.carregando = false;

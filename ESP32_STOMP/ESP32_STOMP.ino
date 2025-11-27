@@ -16,8 +16,8 @@ const char* ssid = "Use o seu 4G";
 const char* password = "d1985A2025.";
 
 // ---- Config servidor ----
-const char* host = "https://monitor-ellas-backend.onrender.com";  // AJUSTE PARA O IP DO BACKEND
-const uint16_t port = 443;           // Porta do Spring Boot (CORRIGIDO)
+const char* host = "192.168.0.37";  // IP do seu computador (Backend)
+const uint16_t port = 3001;           // Porta do Spring Boot (API Principal)
 const char* wsPath = "/ws-raw";      // Endpoint WebSocket puro
 
 // ---- Dispositivo ----

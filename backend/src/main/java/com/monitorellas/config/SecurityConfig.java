@@ -39,7 +39,7 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers("/api/auth/cadastro", "/api/auth/login").permitAll()
+                .requestMatchers("/api/auth/cadastro", "/api/auth/login", "/api/auth/verificar", "/api/auth/reenviar").permitAll()
                 // WebSocket endpoints
                 .requestMatchers("/ws", "/ws/**", "/ws-native", "/ws-native/**", "/ws-raw", "/ws-raw/**", "/socket.io/**").permitAll()
                 .anyRequest().authenticated()
