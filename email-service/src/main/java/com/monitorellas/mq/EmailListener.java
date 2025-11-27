@@ -25,21 +25,10 @@ public class EmailListener {
         String type = (String) payload.get("type");
         if (type == null) return;
         switch (type) {
-            case "operacao.created" -> handleOperacaoCreated(payload);
             case "email.verificacao" -> handleEmailVerificacao(payload);
             default -> {
             }
         }
-    }
-
-    private void handleOperacaoCreated(Map<String, Object> payload) {
-        String to = (String) payload.get("usuarioEmail");
-        if (to == null || to.isBlank()) return;
-        String operacaoNome = (String) payload.getOrDefault("operacaoNome", "Operação");
-        String subject = "[" + appName + "] Operação criada";
-        String body = "Sua operação '" + operacaoNome + "' foi criada com sucesso.\n\n" +
-                "Detalhes: " + payload + "\n";
-        mailService.send(to, subject, body);
     }
 
     private void handleEmailVerificacao(Map<String, Object> payload) {
