@@ -360,6 +360,15 @@ public class RawWebSocketHandler extends TextWebSocketHandler {
             logger.warn("[WS-RAW] Dispositivo sem usuário ao tentar enviar produção!");
         }
 
-        session.sendMessage(new TextMessage("{\"type\":\"producaoSuccess\",\"message\":\"Produção registrada com sucesso!\"}"));
+        // Resposta de sucesso incluindo deviceToken e dados de produção para o dispositivo validar
+        ObjectNode success = objectMapper.createObjectNode();
+        success.put("type", "producaoSuccess");
+        success.put("message", "Produção registrada com sucesso!");
+        ObjectNode data = objectMapper.createObjectNode();
+        data.put("deviceToken", deviceToken);
+        data.put("quantidade", quantidade);
+        data.put("tempoProducao", tempoProducao);
+        success.set("data", data);
+        session.sendMessage(new TextMessage(objectMapper.writeValueAsString(success)));
     }
 }

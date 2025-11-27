@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 public class ResendVerificationRequest {
-    @NotBlank @Email
+    @NotBlank
+    @Email
     private String email;
 }
-

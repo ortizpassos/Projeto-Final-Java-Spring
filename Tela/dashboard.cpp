@@ -48,7 +48,7 @@ void go_dashboard() {
         );
         // TÍTULO
         lbl_titulo = lv_label_create(card);
-        lv_obj_set_style_text_font(lbl_titulo, &lv_font_montserrat_22, 0);
+        lv_obj_set_style_text_font(lbl_titulo, &lv_font_montserrat_20, 0);
         lv_label_set_text(lbl_titulo, "Carregando...");
 
         // SUBTÍTULO
