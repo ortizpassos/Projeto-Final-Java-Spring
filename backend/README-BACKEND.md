@@ -1,17 +1,17 @@
-# Monitor Ellas - Backend Spring Boot
+# Costura Ágil - Backend Spring Boot
 
-Backend do sistema de monitoramento de produção convertido de Node.js/Express para Java Spring Boot.
+Backend do sistema de monitoramento de produção em Java Spring Boot.
 
 ## Tecnologias Utilizadas
 
 - **Java 17**
 - **Spring Boot 3.2.0**
-- **Spring Data MongoDB** - Persistência de dados
-- **Spring Security** - Autenticação e autorização
-- **Spring WebSocket** - Comunicação em tempo real
-- **JWT (jjwt)** - Tokens de autenticação
-- **Lombok** - Redução de boilerplate
-- **Maven** - Gerenciamento de dependências
+- **Spring Data MongoDB**   - Persistência de dados
+- **Spring Security**       - Autenticação e autorização
+- **Spring WebSocket**      - Comunicação em tempo real
+- **JWT (jjwt)**            - Tokens de autenticação
+- **Lombok**                - Redução de boilerplate
+- **Maven**                 - Gerenciamento de dependências
 
 ## Estrutura do Projeto
 
@@ -49,29 +49,29 @@ src/main/java/com/monitorellas/
 
 ### Autenticação
 - `POST /api/auth/cadastro` - Cadastrar novo usuário
-- `POST /api/auth/login` - Login e obtenção de token JWT
-- `GET /api/auth/perfil` - Obter perfil do usuário autenticado
+- `POST /api/auth/login`    - Login e obtenção de token JWT
+- `GET /api/auth/perfil`    - Obter perfil do usuário autenticado
 
 ### Dispositivos
-- `POST /api/dispositivos` - Criar dispositivo
-- `GET /api/dispositivos` - Listar dispositivos do usuário
-- `GET /api/dispositivos/{id}` - Buscar dispositivo por ID
-- `PATCH /api/dispositivos/{id}` - Atualizar dispositivo
-- `DELETE /api/dispositivos/{id}` - Deletar dispositivo
+- `POST /api/dispositivos`          - Criar dispositivo
+- `GET /api/dispositivos`           - Listar dispositivos do usuário
+- `GET /api/dispositivos/{id}`      - Buscar dispositivo por ID
+- `PATCH /api/dispositivos/{id}`    - Atualizar dispositivo
+- `DELETE /api/dispositivos/{id}`   - Deletar dispositivo
 
 ### Funcionários
-- `POST /api/funcionarios` - Criar funcionário
-- `GET /api/funcionarios` - Listar funcionários
-- `GET /api/funcionarios/{id}` - Buscar funcionário por ID
-- `PATCH /api/funcionarios/{id}` - Atualizar funcionário
-- `DELETE /api/funcionarios/{id}` - Deletar funcionário
+- `POST /api/funcionarios`          - Criar funcionário
+- `GET /api/funcionarios`           - Listar funcionários
+- `GET /api/funcionarios/{id}`      - Buscar funcionário por ID
+- `PATCH /api/funcionarios/{id}`    - Atualizar funcionário
+- `DELETE /api/funcionarios/{id}`   - Deletar funcionário
 
 ### Operações
-- `POST /api/operacoes` - Criar operação
-- `GET /api/operacoes` - Listar operações do usuário
-- `GET /api/operacoes/{id}` - Buscar operação por ID
-- `PATCH /api/operacoes/{id}` - Atualizar operação
-- `DELETE /api/operacoes/{id}` - Desativar operação (soft delete)
+- `POST /api/operacoes`         - Criar operação
+- `GET /api/operacoes`          - Listar operações do usuário
+- `GET /api/operacoes/{id}`     - Buscar operação por ID
+- `PATCH /api/operacoes/{id}`   - Atualizar operação
+- `DELETE /api/operacoes/{id}`  - Desativar operação (soft delete)
 
 ## WebSocket Events
 
@@ -80,19 +80,19 @@ src/main/java/com/monitorellas/
 - Protocolo: STOMP over SockJS
 
 ### Eventos do Cliente para Servidor
-- `/app/registerDevice` - Registrar dispositivo online
-- `/app/loginFuncionario` - Login de funcionário no dispositivo
+- `/app/registerDevice`     - Registrar dispositivo online
+- `/app/loginFuncionario`   - Login de funcionário no dispositivo
 - `/app/selecionarOperacao` - Selecionar operação no dispositivo
-- `/app/producao` - Enviar dados de produção
+- `/app/producao`           - Enviar dados de produção
 
 ### Eventos do Servidor para Cliente
-- `/topic/deviceStatusUpdate` - Atualização de status do dispositivo
-- `/topic/deviceRegistered` - Confirmação de registro
-- `/topic/loginSuccess` - Login bem-sucedido
-- `/topic/loginFailed` - Falha no login
-- `/topic/operacaoSelecionada` - Operação selecionada
-- `/topic/productionUpdate` - Atualização de produção
-- `/topic/producaoSuccess` - Confirmação de produção recebida
+- `/topic/deviceStatusUpdate`   - Atualização de status do dispositivo
+- `/topic/deviceRegistered`     - Confirmação de registro
+- `/topic/loginSuccess`         - Login bem-sucedido
+- `/topic/loginFailed`          - Falha no login
+- `/topic/operacaoSelecionada`  - Operação selecionada
+- `/topic/productionUpdate`     - Atualização de produção
+- `/topic/producaoSuccess`      - Confirmação de produção recebida
 
 ## Configuração
 
@@ -198,7 +198,7 @@ Fluxo:
 5. `POST /api/auth/reenviar` gera novo código (invalida anterior) e envia por e-mail.
 
 Propriedades:
-- `verif.code.exp.minutes` (default 30)
+- `verif.code.exp.minutes`   (default 30)
 - `verif.code.attempt.limit` (default 5)
 
 RabbitMQ:
@@ -207,7 +207,7 @@ RabbitMQ:
 Campos adicionados em `Usuario`:
 - `emailVerificado` (Boolean)
 - `verifCodigoHash` (BCrypt do código ativo)
-- `verifExpiresAt` (expiração do código)
+- `verifExpiresAt`  (expiração do código)
 - `verifTentativas` (contador de tentativas)
 
 Erros possíveis:
